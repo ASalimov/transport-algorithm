@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <title>Material Design Bootstrap</title>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css">
+  <!-- Bootstrap core CSS -->
+  <link href="static/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Material Design Bootstrap -->
+  <link href="static/css/mdb.min.css" rel="stylesheet">
+  <!-- Your custom styles (optional) -->
+  <link href="static/css/style.css" rel="stylesheet">
+
+
+
+
+</head>
+
+<body>
+  <div class="mx-auto" style="width: 75%; background-color: rgba(86,61,124,.15);">
+    <div class="card">
+      <h5 class="card-header text-center font-weight-bold text-uppercase py-4">Transshipment problem</h5>
+      <!-- </br> -->
+      <h7 class="card-header pt-3"><a
+          href="https://app.swaggerhub.com/apis-docs/ASalimov/transportProblem/1.0.0#/">Documentation API</a></h7>
+      <h7 class="card-header"><a
+          href="https://github.com/ASalimov/transport-algorithm">Source</a></h7>
+      <h7 class="card-header"><a href="https://app.swaggerhub.com/apis-docs/ASalimov/transportProblem/1.0.0#/">Code
+          Coverage</a></h7>
+      <div class="card-body">
+        <div id="table" class="table-editable">
+          <span class="table-add-col float-right mb-3 mr-2"><a href="#!" class="text-success"><i
+                class="fas fa-plus fa-2x" aria-hidden="true"></i></a></span>
+
+          <table name="tableData" id="tableData" class="table table-bordered table-responsive-md text-center">
+            <tr style="background-color: aliceblue">
+              <th class="text-center">Destinations\Providers</th>
+              <th class="text-center">Provider<br></th>
+              <th class="text-center">Provider</th>
+              <th class="text-center">Provider</th>
+              <th class="text-center">Demand</th>
+            </tr>
+            <tr id="name">
+              <th class="text-center" style="background-color: aliceblue">Destination</th>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true"><b>0</b></td>
+            </tr>
+            <tr>
+              <th class="text-center" style="background-color: aliceblue">Destination</th>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true">0</td>
+              <td class="pt-3-half" contenteditable="true"><b>0</b></td>
+            </tr>
+
+            <tr>
+              <th class="text-center" style="background-color: aliceblue">Supply</th>
+              <td class="pt-3-half" contenteditable="true" style="background-color: rgb(250, 252, 253)"><b>0</b></td>
+              <td class="pt-3-half" contenteditable="true" style="background-color: rgb(250, 252, 253)"><b>0</b></td>
+              <td class="pt-3-half" contenteditable="true" style="background-color: rgb(250, 252, 253)"><b>0</b></td>
+              <td class="pt-3-half" contenteditable="true" style="background-color: rgb(250, 252, 253)"></td>
+            </tr>
+
+          </table>
+          <span class="table-add"><a href="#!" class="text-success"><i class="fas fa-plus fa-2x"
+                aria-hidden="true"></i></a></span>
+        </div>
+
+
+      </div>
+      <div id="divInsert" , name="divInsert">
+        <div class="px-md-3 text-center">
+          <button id="generateBtn" name="generateBtn" class="btn btn-primary">GENERATE</button>
+          <button id="findOptimal" name="findOptimal" class="btn btn-danger">FIND OPTIMAL</button>
+        </div>
+
+
+      </div>
+    </div>
+  </div>
+  <!-- Editable table -->
+
+
+  <!-- /Start your project here-->
+
+  <!-- SCRIPTS -->
+  <!-- JQuery -->
+  <script type="text/javascript" src="static/js/jquery-3.3.1.min.js"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="static/js/popper.min.js"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="static/js/mdb.js"></script>
+
+  <script type="text/javascript">
+    function appendRow() {
+      var tbl = document.getElementById('my-table'), // table reference
+        row = tbl.insertRow(tbl.rows.length),      // append table row
+        i;
+      // insert table cells to the new row
+      for (i = 0; i < tbl.rows[0].cells.length; i++) {
+        createCell(row.insertCell(i), i, 'row');
+      }
+    }
+  </script>
+  <script type="text/javascript">
+    var $TABLE = $('#table');
+    var $BTN = $('#export-btn');
+    var $EXPORT = $('#export');
+    var myform = $('#tableData'),
+      iter = 0;
+
+
+    // =======================================================================================
+    // $('.btn').click(function () {
+
+
+    //   alert("rsp = " + xmlhttp.responseText);
+
+    //   // ----------------------------------------------------------------
+    //   function insertAfter(referenceNode, newNode) {
+    //     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+    //   }
+
+    //   var el = document.getElementById("table").cloneNode(true);;
+    //   var div = document.getElementById("tableData");
+    //   insertAfter(div, el);
+
+
+    // });
+
+
+    function updateTable(table, costs, demands, supplies) {
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        var row = table.rows[i]
+        for (var j = 1; j < row.cells.length - 1; j++) {
+          var cell = row.cells[j]
+          cell.innerHTML = costs[i - 1][j - 1]
+        }
+      }
+
+      for (var i = 1; i < table.rows[0].cells.length - 1; i++) {
+        var row = table.rows[table.rows.length - 1]
+        row.cells[i].innerHTML = demands[i - 1]
+      }
+
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        table.rows[i].cells[table.rows[0].cells.length - 1].innerHTML = supplies[i - 1]
+      }
+    }
+
+
+    // GENERATE =======================================================================================
+    $('#generateBtn').click(function () {
+      document.getElementById('findOptimal').disabled=false
+      var table = document.getElementById('tableData');
+      var xmlhttp = new XMLHttpRequest();
+      var n = table.rows.length - 1
+      var m = table.rows[0].cells.length - 1
+      xmlhttp.open("GET", "api/generate?n=" + n + "&m=" + m, false);
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      xmlhttp.send();
+      var json = JSON.parse(xmlhttp.responseText);
+      updateTable(table, json.costs, json.demands, json.supplies)
+
+    });
+    // ==========================================================================================
+    // FIND OPTIMAL =============================================================================
+    $('#findOptimal').click(function () {
+      this.disabled=true; 
+      var demands = []
+      var supplies = []
+      var data = []
+      var table = document.getElementById('tableData');
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        var row = table.rows[i]
+        var item = []
+        for (var j = 1; j < row.cells.length - 1; j++) {
+          var cell = row.cells[j]
+          item.push(parseFloat(cell.innerHTML))
+        }
+        if (item.length > 0) {
+          data.push(item)
+        }
+      }
+      for (var i = 1; i < table.rows[0].cells.length - 1; i++) {
+        var row = table.rows[table.rows.length - 1]
+        supplies.push(parseFloat(row.cells[i].innerHTML))
+      }
+
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        demands.push(parseFloat(table.rows[i].cells[table.rows[0].cells.length - 1].innerHTML))
+      }
+      var req = {
+        supplies: supplies,
+        demands: demands,
+        costs: data
+      };
+      
+      var json = JSON.stringify(req);
+      // req to server 
+      // alert("req = " + json);
+      var xmlhttp = new XMLHttpRequest();
+      // xmlhttp.onreadystatechange = callbackFunction(xmlhttp);
+      xmlhttp.open("POST", "api/find", false);
+      xmlhttp.setRequestHeader("Content-Type", "application/json");
+      // xmlhttp.onreadystatechange = callbackFunction(xmlhttp);
+      xmlhttp.send(json);
+      var jsonRsp = JSON.parse(xmlhttp.responseText);
+
+
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        var row = table.rows[i]
+        for (var j = 1; j < row.cells.length - 1; j++) {
+          var cell = row.cells[j]
+          if (jsonRsp.volume[i - 1][j - 1]>0){
+            cell.innerHTML += " - <b>[" + jsonRsp.volume[i - 1][j - 1] + "]</b>"
+          }
+          
+        }
+      }
+
+      for (var i = 1; i < table.rows[0].cells.length - 1; i++) {
+        var row = table.rows[table.rows.length - 1]
+        row.cells[i].innerHTML += " - <b>[" + jsonRsp.potentialU[i - 1] + "]</b>"
+      }
+      console.log("ddd = "+jsonRsp)
+      for (var i = 1; i < table.rows.length - 1; i++) {
+        console.log("ddd1 = "+jsonRsp.potentialU[i - 1])
+        table.rows[i].cells[table.rows[0].cells.length - 1].innerHTML += " - <b>[" + jsonRsp.potentialV[i - 1] + "]</b>"
+      }
+      updateTable(table, jsonRsp.decision, jsonRsp.demands, jsonRsp.supplies)
+
+    });
+    // ==========================================================================================
+
+    $('.table-add').click(function () {
+      var mainTable = document.getElementById('tableData');
+      if (mainTable.rows.length == 21) {
+        alert("You have reached maximum of rows")
+        return
+      }
+      var tbody = mainTable.children[0];
+      tbody.insertBefore(mainTable.rows[mainTable.rows.length - 2].cloneNode(true), mainTable.rows[mainTable.rows.length - 1]);
+    });
+    $('.table-add-col').click(function () {
+      var mainTable = document.getElementById('tableData');
+      if (mainTable.rows[0].cells.length == 11) {
+        alert("You have reached maximum of columns")
+        return
+      }
+
+      for (var i = 0; row = mainTable.rows[i]; i++) {
+        row = mainTable.rows[i];
+        row.insertBefore(row.cells[row.cells.length - 2].cloneNode(true), row.cells[row.cells.length - 1]);
+
+        var col = row.cells[2]
+        if (col.firstChild) {
+          // alert("aa = "+col.firstChild.nodeValue);
+        }
+
+      }
+
+      myform.find('tr').each(function () {
+
+        var trow = $(this);
+        var tbody = trow;
+        alert(trow.cells[1]);
+
+        if (trow.index() === 0) {
+          trow.append('<td>Col' + iter + '</td>');
+        } else {
+          trow.append('<td><input type="checkbox" name="cb' + iter + '"/></td>');
+        }
+
+      });
+      iter += 1;
+    });
+
+
+    // A few jQuery helpers for exporting only
+    jQuery.fn.pop = [].pop;
+    jQuery.fn.shift = [].shift;
+
+    $BTN.click(function () {
+      var $rows = $TABLE.find('tr:not(:hidden)');
+      var headers = [];
+      var data = [];
+
+      // Get the headers (add special header logic here)
+      $($rows.shift()).find('th:not(:empty)').each(function () {
+        headers.push($(this).text().toLowerCase());
+      });
+
+      // Turn all existing rows into a loopable array
+      $rows.each(function () {
+        var $td = $(this).find('td');
+        var h = {};
+
+        // Use the headers from earlier to name our hash keys
+        headers.forEach(function (header, i) {
+          h[header] = $td.eq(i).text();
+        });
+
+        data.push(h);
+      });
+
+      // Output the result
+      $EXPORT.text(JSON.stringify(data));
+    });
+
+
+  </script>
+  </div>
+</body>
+
+</html>

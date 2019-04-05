@@ -1,0 +1,122 @@
+swagger: "2.0"
+info:
+  version: 1.0.0
+  title: Swagger Petstore
+  description: This is API which helps to find the optimal solution of the transhipment problem
+  termsOfService: http://localhost:8080/terms/
+  contact:
+    name: Artem Salimov
+    email: salimov.artem@gmail.com
+    url: http://localhost:8080
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+host: localhost:8080
+basePath: /api
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /find:
+    post:
+      summary: "find the optimal decision"
+      description: "find the optimal decision of the transhipment problem. 
+        It checks incoming data for degeneracy and other extreme situations"
+      operationId: "find"
+      consumes:
+        - application/json
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Pet object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/Facts"
+      responses:
+        200:
+          description: "Optimal decision is found"
+          schema:
+            $ref: "#/definitions/Decision"
+        400: 
+          description: Invalid parameter value in the request 
+        500: 
+          description: Internal error  
+  /generate:
+    get:
+      summary: "generate transport facts"
+      description: "generate transport facts"
+      operationId: "generate"
+      consumes:
+        - application/json
+      parameters:
+        - name: "n"
+          in: "query"
+          description: "number of destinations"
+          required: true
+          type: number
+          format: int32
+        - name: "m"
+          in: "query"
+          description: "number of providers"
+          required: true
+          type: number
+          format: int32
+      responses:
+        200:
+          description: "Optimal decision is found"
+          schema:
+            $ref: "#/definitions/Facts"
+        400: 
+          description: Invalid parameter value in the request 
+        500: 
+          description: Internal error  
+definitions:
+  Facts:
+    type: object
+    required:
+      - demands
+      - supplies
+      - costs
+    properties:
+      demands:
+        type: array
+        items:
+            type: number
+            format: double
+      supplies:
+        type: array
+        items:
+            type: number
+            format: double
+      costs:
+        type: array
+        items:
+            type: array
+            items:
+              type: number
+              format: double
+  Decision:
+    type: object
+    required:
+      - volume
+    properties:
+      volume:
+        type: array
+        items:
+          type: array
+          items:
+              type: number
+              format: double
+      potentialU:
+        type: array
+        items:
+          type: number
+          format: double
+      potentialV:
+        type: array
+        items:
+          type: number
+          format: double
