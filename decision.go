@@ -35,7 +35,7 @@ func (m *Decision) MarshalBinary() ([]byte, error) {
 	return swag.WriteJSON(m)
 }
 
-// UnmarshalBinary interface implementation
+// UnmarshalBinary  interface implementation
 func (m *Decision) UnmarshalBinary(b []byte) error {
 	var res Decision
 	if err := swag.ReadJSON(b, &res); err != nil {
