@@ -32,10 +32,10 @@ func (r *bodyLogReader) Read(p []byte) (n int, err error) {
 }
 
 func setupRouter() *gin.Engine {
-
 	router := gin.New()
 	router.Use(logger())
 	router.StaticFile("/", "static/index.html")
+	router.StaticFile("coverage", "coverage_info")
 	router.Static("/static", "static")
 	router.GET("/api/generate", generateFactsHandle)
 	router.POST("/api/find", findHandle)
