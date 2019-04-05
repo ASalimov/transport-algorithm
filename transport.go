@@ -141,6 +141,7 @@ func (t *FactsWrapper) MinimumRate() [][]float64 {
 		PotentialV: makeSlice(len(t.Demands)),
 		PotentialU: makeSlice(len(t.Supplies)),
 	}
+	t.GetTotal()
 	return resp
 }
 
