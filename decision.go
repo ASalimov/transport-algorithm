@@ -20,7 +20,7 @@ type Decision struct {
 	PotentialV []float64 `json:"potentialV"`
 
 	// total
-	Total float64 `json:"total,omitempty"`
+	Total float64 `json:"total"`
 
 	// volume
 	// Required: true
