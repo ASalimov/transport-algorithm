@@ -26,7 +26,7 @@ type Facts struct {
 	Supplies []float64 `json:"supplies"`
 }
 
-// MarshalBinary interface implementation
+// MarshalBinary  interface implementation
 func (m *Facts) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
