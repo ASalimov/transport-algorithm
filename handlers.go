@@ -10,23 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Todo struct {
-	Title string
-	Done  bool
-}
-
-type TodoPageData struct {
-	PageTitle string
-	Todos     []Todo
-}
-
 func generateFactsHandle(c *gin.Context) {
 	n, err := strconv.Atoi(c.Query("n"))
 	if err != nil {
+		errorHandle(http.StatusBadRequest, c, err)
 		return
 	}
 	m, err := strconv.Atoi(c.Query("m"))
 	if err != nil {
+		errorHandle(http.StatusBadRequest, c, err)
 		return
 	}
 	costs := make([][]float64, n)
@@ -48,7 +40,8 @@ func generateFactsHandle(c *gin.Context) {
 	facts := Facts{Costs: costs, Demands: demands, Supplies: supplies}
 	b, err := facts.MarshalBinary()
 	if err != nil {
-		fmt.Println("err = ", err)
+		errorHandle(http.StatusInternalServerError, c, err)
+		return
 	}
 	c.Writer.Write(b)
 	return
@@ -57,31 +50,35 @@ func generateFactsHandle(c *gin.Context) {
 func findHandle(c *gin.Context) {
 	b, err := ioutil.ReadAll(c.Request.Body)
 	if err != nil {
-		c.String(http.StatusInternalServerError, fmt.Sprintf("internal error: %v", err))
+		errorHandle(http.StatusBadRequest, c, err)
 		return
 	}
 
 	var facts Facts
 	if err := facts.UnmarshalBinary(b); err != nil {
-		fmt.Println("err = ", err)
+		errorHandle(http.StatusBadRequest, c, err)
+		return
 	}
 	t, err := NewFactsWrapper(facts)
 	if err != nil {
-		fmt.Println("err = ", err)
+		errorHandle(http.StatusBadRequest, c, err)
+		return
 	}
 	t.Find()
+	fmt.Println("Optimal dicision:")
+	fmt.Println(t)
+	fmt.Println()
 	di := t.decision
-	for i := range di.Volume {
-		for j := range di.Volume[i] {
-			if di.Volume[i][j] == empty {
-				di.Volume[i][j] = 0
-			}
-		}
-	}
 	br, err := di.MarshalBinary()
 	if err != nil {
-		fmt.Println("err = ", err)
+		errorHandle(http.StatusInternalServerError, c, err)
+		return
 	}
 	c.Writer.Write(br)
 	return
+}
+
+func errorHandle(code int, c *gin.Context, err error) {
+	Error.Printf("%v", err)
+	c.String(code, fmt.Sprintf("%v", err))
 }

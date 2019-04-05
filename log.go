@@ -5,7 +5,10 @@ import (
 	"os"
 )
 
+// Info is logger to stdout
 var Info *log.Logger
+
+// Error is logger to stderr
 var Error *log.Logger
 
 func init() {

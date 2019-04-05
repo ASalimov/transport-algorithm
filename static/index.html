@@ -36,7 +36,7 @@
           <span class="table-add-col float-right mb-3 mr-2"><a href="#!" class="text-success"><i
                 class="fas fa-plus fa-2x" aria-hidden="true"></i></a></span>
 
-          <table name="tableData" id="tableData" class="table table-bordered table-responsive-md text-center">
+          <table name="tableData"  id="tableData" class="table table-bordered table-responsive-md text-center">
             <tr style="background-color: aliceblue">
               <th class="text-center">Destinations\Providers</th>
               <th class="text-center">Provider<br></th>
@@ -68,6 +68,8 @@
             </tr>
 
           </table>
+          <h7 ></h7>
+          <p id="total" class="text-right"><b>Total price: 0</b></p>
           <span class="table-add"><a href="#!" class="text-success"><i class="fas fa-plus fa-2x"
                 aria-hidden="true"></i></a></span>
         </div>
@@ -154,6 +156,7 @@
       for (var i = 1; i < table.rows.length - 1; i++) {
         table.rows[i].cells[table.rows[0].cells.length - 1].innerHTML = supplies[i - 1]
       }
+      document.getElementById('total').innerHTML = "<b>Total price: 0</b>"
     }
 
 
@@ -169,6 +172,7 @@
       xmlhttp.send();
       var json = JSON.parse(xmlhttp.responseText);
       updateTable(table, json.costs, json.demands, json.supplies)
+      
 
     });
     // ==========================================================================================
@@ -198,6 +202,7 @@
       for (var i = 1; i < table.rows.length - 1; i++) {
         demands.push(parseFloat(table.rows[i].cells[table.rows[0].cells.length - 1].innerHTML))
       }
+     
       var req = {
         supplies: supplies,
         demands: demands,
@@ -226,7 +231,8 @@
           
         }
       }
-
+      var total = "<b>Total price: "+jsonRsp.total+"</b>"
+      document.getElementById('total').innerHTML = total
       for (var i = 1; i < table.rows[0].cells.length - 1; i++) {
         var row = table.rows[table.rows.length - 1]
         row.cells[i].innerHTML += " - <b>[" + jsonRsp.potentialU[i - 1] + "]</b>"

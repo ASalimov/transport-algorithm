@@ -3,15 +3,14 @@ info:
   version: 1.0.0
   title: Swagger Petstore
   description: This is API which helps to find the optimal solution of the transhipment problem
-  termsOfService: http://localhost:8080/terms/
   contact:
     name: Artem Salimov
     email: salimov.artem@gmail.com
-    url: http://localhost:8080
+    url: https://github.com/ASalimov
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
-host: localhost:8080
+host: transport-algorithm.herokuapp.com
 basePath: /api
 schemes:
   - http
@@ -103,6 +102,9 @@ definitions:
     required:
       - volume
     properties:
+      total: 
+        type: number
+        format: double
       volume:
         type: array
         items:

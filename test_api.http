@@ -2,7 +2,7 @@ POST http://localhost:8080/api/find
 Content-Type: application/json
 
 {
-    "demands":[70, 60, 30],
+    "demands":[70, 70, 30],
     "supplies":[30, 90, 50],
     "costs":[
         [8, 3, 1],
@@ -13,5 +13,29 @@ Content-Type: application/json
 
 ###
 
-GET http://localhost:8080/api/generate?n=2&m=3
+GET http://localhost:8080/api/generate?n=3d&m=3
 Content-Type: application/json
+
+###
+
+POST http://localhost:8080/api/find
+Content-Type: application/json
+
+{
+    asd "demands":[70, 70, 30],
+    "supplies":[30, 90, 50],
+    "costs":[
+        [8, 3, 1],
+		[4, 7, 4],
+		[5, 2, 6]
+    ]
+}
+
+###
+
+GET http://localhost:8080/api/generate?ns=3d&m=3
+Content-Type: application/json
+
+
+
+

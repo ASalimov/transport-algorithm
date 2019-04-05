@@ -34,8 +34,7 @@ func (r *bodyLogReader) Read(p []byte) (n int, err error) {
 func setupRouter() *gin.Engine {
 
 	router := gin.New()
-
-	router.Use(Logger())
+	router.Use(logger())
 	router.StaticFile("/", "static/index.html")
 	router.Static("/static", "static")
 	router.GET("/api/generate", generateFactsHandle)
@@ -44,7 +43,7 @@ func setupRouter() *gin.Engine {
 
 }
 
-func Logger() gin.HandlerFunc {
+func logger() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		blr := &bodyLogReader{body: bytes.NewBufferString(""), ReadCloser: c.Request.Body}
 		c.Request.Body = blr

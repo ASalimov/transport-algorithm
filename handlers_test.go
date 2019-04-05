@@ -14,11 +14,26 @@ func TestGenerateFactsHandle(t *testing.T) {
 	req, _ := http.NewRequest("GET", "/api/generate?n=10&m=12", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)
-	assert.Equal(t, 200, w.Code)
+	assert.Equal(t, http.StatusOK, w.Code)
 	var f Facts
 	if err := f.UnmarshalBinary([]byte(w.Body.String())); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestGenerateFactsHandle1(t *testing.T) {
+	router := setupRouter()
+	req, _ := http.NewRequest("GET", "/api/generate", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+func TestGenerateFactsHandle2(t *testing.T) {
+	router := setupRouter()
+	req, _ := http.NewRequest("GET", "/api/generate?n=10&m=d12", nil)
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }
 
 func TestFindHandle(t *testing.T) {
@@ -40,5 +55,12 @@ func TestFindHandle(t *testing.T) {
 	if err := d.UnmarshalBinary([]byte(w.Body.String())); err != nil {
 		t.Fatal(err)
 	}
+}
 
+func TestFindHandle1(t *testing.T) {
+	router := setupRouter()
+	req, _ := http.NewRequest("POST", "/api/find", bytes.NewReader([]byte("fake body")))
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+	assert.Equal(t, http.StatusBadRequest, w.Code)
 }

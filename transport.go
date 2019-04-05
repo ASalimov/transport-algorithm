@@ -43,9 +43,9 @@ func NewFactsWrapper(facts Facts) (*FactsWrapper, error) {
 	return &FactsWrapper{Facts: facts}, nil
 }
 
-// Find is an function
+// Find is an function for finding optimal decision
 func (t *FactsWrapper) Find() error {
-	t.preventDegeneracy()
+	t.balance()
 	t.MinimumRate()
 	fmt.Println("First solution by the minimum tariff method:")
 	fmt.Println(t)
@@ -53,15 +53,21 @@ func (t *FactsWrapper) Find() error {
 	for {
 		if i, j, ok := t.IsOptimal(); !ok {
 			t.BetterOptimal(i, j)
-			// fmt.Println(t)
 		} else {
 			break
+		}
+	}
+	for i := range t.decision.Volume {
+		for j := range t.decision.Volume[i] {
+			if t.decision.Volume[i][j] == empty {
+				t.decision.Volume[i][j] = 0
+			}
 		}
 	}
 	return nil
 }
 
-func (t *FactsWrapper) preventDegeneracy() {
+func (t *FactsWrapper) balance() {
 	delta := sum(t.Supplies) - sum(t.Demands)
 	if delta > 0 {
 		t.Demands = append(t.Demands, delta)
@@ -80,6 +86,7 @@ func (t *FactsWrapper) preventDegeneracy() {
 	}
 }
 
+// MinimumRate is a function that provide first decision using minimum rate algorithm
 func (t *FactsWrapper) MinimumRate() [][]float64 {
 
 	lD := len(t.Demands)
@@ -129,8 +136,6 @@ func (t *FactsWrapper) MinimumRate() [][]float64 {
 		}
 
 	}
-	// fmt.Println("remS = ", remS)
-	// fmt.Println("remD = ", remD)
 	t.decision = Decision{
 		Volume:     resp,
 		PotentialV: makeSlice(len(t.Demands)),
@@ -142,7 +147,7 @@ func (t *FactsWrapper) MinimumRate() [][]float64 {
 func (t FactsWrapper) String() string {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println("error: ", r, "\nstacktrace from panic: \n"+string(debug.Stack()))
+			Error.Println("error: ", r, "\nstacktrace from panic: \n"+string(debug.Stack()))
 		}
 	}()
 	header := make([]string, len(t.Supplies)+1)
@@ -173,7 +178,7 @@ func (t FactsWrapper) String() string {
 	tw.SetAutoFormatHeaders(false)
 	footer := make([]string, len(t.Supplies)+1)
 	footer[len(t.Supplies)-1] = "Total"
-	footer[len(t.Supplies)] = fmt.Sprintf("%.2f", t.GetTotal())
+	footer[len(t.Supplies)] = fmt.Sprintf("%.2f", t.decision.Total)
 	tw.SetFooter(footer)
 	tw.SetBorder(false)
 	tw.AppendBulk(bulk)
@@ -184,7 +189,8 @@ func (t FactsWrapper) String() string {
 	return st
 }
 
-func (t FactsWrapper) GetTotal() (total float64) {
+// GetTotal is a function provide total amount of the current decision
+func (t *FactsWrapper) GetTotal() (total float64) {
 	for i, row := range t.Costs {
 		for j, price := range row {
 			if t.decision.Volume[i][j] != empty {
@@ -192,10 +198,11 @@ func (t FactsWrapper) GetTotal() (total float64) {
 			}
 		}
 	}
+	t.decision.Total = total
 	return
 }
 
-func (t *FactsWrapper) preventDegeneracy1() {
+func (t *FactsWrapper) preventDegeneracy() {
 	basises := 0
 	for i := range t.decision.Volume {
 		for j := range t.decision.Volume[i] {
@@ -212,15 +219,15 @@ func (t *FactsWrapper) preventDegeneracy1() {
 		randJ := rand.Intn(len(t.Supplies))
 		if t.decision.Volume[randI][randJ] == empty {
 			t.decision.Volume[randI][randJ] = 0
-			// fmt.Println("added new 0, ", randI, ", ", randJ)
 			needToAdd--
 		}
 
 	}
 }
 
+// IsOptimal is a function, returns true if decision is optimal
 func (t *FactsWrapper) IsOptimal() (int, int, bool) {
-	t.preventDegeneracy1()
+	t.preventDegeneracy()
 	t.decision.PotentialU = makeSlice(len(t.Supplies))
 	t.decision.PotentialV = makeSlice(len(t.Demands))
 	i := 0
@@ -229,7 +236,7 @@ func (t *FactsWrapper) IsOptimal() (int, int, bool) {
 		if err := t.findPotentials(); err == nil {
 			break
 		}
-		t.preventDegeneracy1()
+		t.preventDegeneracy()
 		i++
 		if i > 10000 {
 			log.Fatal("failed to findPotentials")
@@ -242,22 +249,17 @@ func (t *FactsWrapper) IsOptimal() (int, int, bool) {
 		for j := range t.Costs[i] {
 			if PV[i]+PU[j] > t.Costs[i][j] && t.decision.Volume[i][j] == empty && t.Costs[i][j] != empty {
 				notOptimal = true
-				fmt.Printf("not omptimal, couse: u+v = %.0f  costs[%d][%d]=%.0f\n", PV[i]+PU[j], i, j, t.Costs[i][j])
+				Info.Printf("not omptimal, cause: u+v = %.0f  costs[%d][%d]=%.0f\n", PV[i]+PU[j], i, j, t.Costs[i][j])
 				_, err := t.goByChainHorizontaly(i, j, i, j)
 				if err != nil {
-					fmt.Printf("wrong chain for costs[%d][%d]=%.0f", i, j, t.Costs[i][j])
+					Info.Printf("wrong chain for costs[%d][%d]=%.0f", i, j, t.Costs[i][j])
 					continue
 				}
 				return i, j, false
 			}
 		}
 	}
-	if !notOptimal {
-		fmt.Println("optimal: ", t.decision.PotentialV)
-	}
-
 	return 0, 0, !notOptimal
-
 }
 
 func (t *FactsWrapper) findPotentials() error {
@@ -281,11 +283,9 @@ func (t *FactsWrapper) findPotentials() error {
 				if V[i][j] != empty {
 					if PV[i] != empty && PU[j] == empty {
 						PU[j] = cost - PV[i]
-						// fmt.Println("PV:", PV, ", PU:", PU)
 						found1++
 					} else if PU[j] != empty && PV[i] == empty {
 						PV[i] = cost - PU[j]
-						// fmt.Println("PV:", PV, ", PU:", PU)
 						found1++
 					}
 				}
@@ -295,13 +295,13 @@ func (t *FactsWrapper) findPotentials() error {
 			return nil
 		}
 		if found1 == found {
-			// fmt.Println("potential values not found: ", found1)
 			return fmt.Errorf("potential values not found")
 		}
 		found = found1
 	}
 }
 
+// BetterOptimal is a function that finds a more optimal solution than the previous one
 func (t *FactsWrapper) BetterOptimal(pivotI, pivotJ int) {
 	repeat := 100
 	var chain []link
@@ -311,7 +311,7 @@ func (t *FactsWrapper) BetterOptimal(pivotI, pivotJ int) {
 		if err == nil {
 			break
 		}
-		t.preventDegeneracy1()
+		t.preventDegeneracy()
 		repeat--
 		if repeat == 0 {
 			log.Fatal(err)
@@ -336,6 +336,7 @@ func (t *FactsWrapper) BetterOptimal(pivotI, pivotJ int) {
 			t.decision.Volume[link.i][link.j] = empty
 		}
 	}
+	t.GetTotal()
 
 }
 
@@ -350,7 +351,6 @@ func (t *FactsWrapper) goByChainHorizontaly(pivotI, pivotJ, iC, jC int) ([]link,
 			if chain1, err := t.goByChainVertically(pivotI, pivotJ, iC, j); err == nil {
 				chain := []link{link{iC, j}}
 				chain = append(chain, chain1...)
-				// fmt.Println("chain: ", chain)
 				return chain, nil
 			}
 		}
@@ -369,7 +369,6 @@ func (t *FactsWrapper) goByChainVertically(pivotI, pivotJ, iC, jC int) ([]link, 
 			if chain1, err := t.goByChainHorizontaly(pivotI, pivotJ, i, jC); err == nil {
 				chain := []link{link{i, jC}}
 				chain = append(chain, chain1...)
-				// fmt.Println("chain: ", chain)
 				return chain, nil
 			}
 		}
