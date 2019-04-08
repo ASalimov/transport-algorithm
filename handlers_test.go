@@ -11,22 +11,31 @@ import (
 
 func TestGenerateFactsHandle(t *testing.T) {
 	router := setupRouter()
-	req, _ := http.NewRequest("GET", "/api/generate?n=10&m=12", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusOK, w.Code)
-	var f Facts
-	if err := f.UnmarshalBinary([]byte(w.Body.String())); err != nil {
-		t.Fatal(err)
+	tt := []struct {
+		name       string
+		q          string
+		httpStatus int
+	}{
+		{"t1", "/api/generate", http.StatusBadRequest},
+		{"t2", "/api/generate?n=10&m=12", http.StatusOK},
+		{"t2", "/api/generate?n=10&m=wrong", http.StatusBadRequest},
 	}
-}
 
-func TestGenerateFactsHandle1(t *testing.T) {
-	router := setupRouter()
-	req, _ := http.NewRequest("GET", "/api/generate", nil)
-	w := httptest.NewRecorder()
-	router.ServeHTTP(w, req)
-	assert.Equal(t, http.StatusBadRequest, w.Code)
+	for _, tc := range tt {
+		t.Run(tc.name, func(t *testing.T) {
+			req, _ := http.NewRequest("GET", tc.q, nil)
+			w := httptest.NewRecorder()
+			router.ServeHTTP(w, req)
+			assert.Equal(t, tc.httpStatus, w.Code)
+			var f Facts
+			if w.Code == http.StatusOK {
+				if err := f.UnmarshalBinary([]byte(w.Body.String())); err != nil {
+					t.Fatal(err)
+				}
+			}
+
+		})
+	}
 }
 func TestGenerateFactsHandle2(t *testing.T) {
 	router := setupRouter()
