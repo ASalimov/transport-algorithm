@@ -72,7 +72,7 @@ func (t *FactsWrapper) MinimumRate() [][]float64 {
 	lD := len(t.Demands)
 	lS := len(t.Supplies)
 	resp := makeTable(lD, lS)
-	remD, remS := make([]float64, lD)make([]float64, lS)
+	remD, remS := make([]float64, lD), make([]float64, lS)
 	copy(remD, t.Demands)
 	copy(remS, t.Supplies)
 	costs := make([][]float64, lD)
