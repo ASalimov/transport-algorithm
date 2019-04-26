@@ -78,6 +78,11 @@ func findHandle(c *gin.Context) {
 	return
 }
 
+func corezoid(c *gin.Context) {
+	c.String(200, "ok")
+	return
+}
+
 func errorHandle(code int, c *gin.Context, err error) {
 	Error.Printf("%v", err)
 	c.String(code, fmt.Sprintf("%v", err))

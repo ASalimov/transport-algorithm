@@ -39,6 +39,7 @@ func setupRouter() *gin.Engine {
 	router.Static("/static", "static")
 	router.GET("/api/generate", generateFactsHandle)
 	router.POST("/api/find", findHandle)
+	router.PUT("/api/corezoid", corezoid)
 	return router
 
 }
