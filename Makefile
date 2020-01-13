@@ -8,6 +8,17 @@ $(DOCKER_CMD): clean
 
 clean:
 	rm -rf $(DOCKER_BUILD)
+	go clean
 
 heroku: $(DOCKER_CMD)
 	heroku container:push web
+
+
+build: clean
+	go build
+	go vet
+	go test
+
+local: build
+	PORT=8080 ./transport-algorithm
+

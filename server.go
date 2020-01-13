@@ -41,7 +41,6 @@ func setupRouter() *gin.Engine {
 	router.POST("/api/find", findHandle)
 	router.PUT("/api/corezoid", corezoid)
 	return router
-
 }
 
 func logger() gin.HandlerFunc {

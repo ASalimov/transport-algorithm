@@ -53,7 +53,6 @@ func findHandle(c *gin.Context) {
 		errorHandle(http.StatusBadRequest, c, err)
 		return
 	}
-
 	var facts Facts
 	if err := facts.UnmarshalBinary(b); err != nil {
 		errorHandle(http.StatusBadRequest, c, err)
