@@ -31,6 +31,7 @@ func (m *Facts) MarshalBinary() ([]byte, error) {
 	if m == nil {
 		return nil, nil
 	}
+	
 	return swag.WriteJSON(m)
 }
 
