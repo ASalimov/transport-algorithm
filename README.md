@@ -6,3 +6,4 @@ This program uses the stepping stone algorithum to solve the transhipment proble
   make local
 
 ```
+and open the link http://localhost:8080
